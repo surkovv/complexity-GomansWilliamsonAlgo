@@ -74,21 +74,31 @@ class TwoCNF:
 
         values = sps.bernoulli(p=0.5).rvs(n_letters)
         numbers = sps.randint(0, n_letters).rvs(n_disjunctions * 2)
-        negs = sps.bernoulli(p=0.5).rvs(n_disjunctions * 2)
+        negs = sps.randint(1, 4).rvs(n_disjunctions)
         for i in range(n_disjunctions):
             l1 = string.ascii_lowercase[numbers[i + i]]
             l2 = string.ascii_lowercase[numbers[i + i + 1]]
-            if negs[i + i]:
+            if not (values[numbers[i + i]] ^ (negs[i] & 1)):
                 l1 += '*'
-            if negs[i + i + 1]:
+            if not (values[numbers[i + i + 1]] ^ ((negs[i] >> 1) & 1)):
                 l2 += '*'
+            result.add_str(l1, l2)
 
-            if not (negs[i + i] ^ values[numbers[i + i]]) \
-                    and not (negs[i + i + 1] ^ values[numbers[i + i + 1]]):
-                if len(l2) == 2:
-                    l2 = l2[0]
-                else:
-                    l2 = l2 + '*'
+        return result
+
+    @classmethod
+    def random_formula_same(cls, n_letters, n_disjunctions):
+        result = TwoCNF()
+
+        numbers = sps.randint(0, n_letters).rvs(n_disjunctions)
+        neg = sps.bernoulli(p=0.5).rvs(n_disjunctions * 2)
+        for i in range(n_disjunctions):
+            l1 = string.ascii_lowercase[numbers[i]]
+            l2 = l1
+            if neg[i + i]:
+                l1 += '*'
+            if neg[i + i + 1]:
+                l2 += '*'
             result.add_str(l1, l2)
 
         return result
